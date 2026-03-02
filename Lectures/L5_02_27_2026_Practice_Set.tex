@@ -1,6 +1,6 @@
 \documentclass{article}
-\usepackage{mathptmx}
-\usepackage{courier}
+%\usepackage{mathptmx}
+%\usepackage{courier}
 \usepackage[paper=a4paper]{geometry}
 \usepackage{amsmath,amssymb,amsfonts,mathtools}
 \usepackage{fontawesome5}
@@ -107,7 +107,7 @@
 	\end{problem}
 
 	\begin{problem}
-		Alice has collected a dataset of dependent and independent variables \(\{(x^{(1)},y^{(1)}),\hdots(x^{(n)},y^{(n)})\}\). She does linear regression on it and obtains the weight vector \(w_\text{Alice}\). Bob also collects the same dataset, but while recording the independent variables (the \(x^{(i)}\)'s) he uses different units. Specifically, Bob's dataset is \(\{(z^{(1)},y^{(1)}),\hdots(z^{(n)},y^{(n)})\}\), where for each \(i\), \(z^{(i)}=cx^{(i)}\ \forall\ c>0\). Bob does linear regression on this dataset and obtains a weight vector \(w_\text{Bob}\).
+		Alice has collected a dataset of dependent and independent variables containing \(\{(x^{(1)},y^{(1)}),\hdots(x^{(n)},y^{(n)})\}\). She does linear regression on it and obtains the weight vector \(w_\text{Alice}\). Bob also collects the same dataset, but while recording the independent variables (the \(x^{(i)}\)'s) he uses different units. Specifically, Bob's dataset is \(\{(z^{(1)},y^{(1)}),\hdots(z^{(n)},y^{(n)})\}\), where for each \(i\), \(z^{(i)}=cx^{(i)}\ \forall\ c>0\). Bob does linear regression on this dataset and obtains a weight vector \(w_\text{Bob}\).
 		
 		\begin{enumerate}[label=(\alph*)]
 			\item (4 Points) Do Alice and Bob have the same training loss? Is \(w_\text{Alice}=w_\text{Bob}\)? In either case, justify your answer.
@@ -119,7 +119,7 @@
 	\begin{problem}
 		Suppose we have a dataset of 100 points whose first few rows are shown below, and that we would like to predict \(\vec{y}\) from \(\vec{v}\) and \(\vec{w}\). Suppose we create a design matrix \(\mathbb{X}\), whose first column is \(\vec{v}\), second column is \(\vec{w}\), and third column \(\vec{u}\) is a new feature \(u_i=|v_i|\). The resulting model is \(\hat{y}_i=\beta_1v_i+\beta_2w_i+\beta_3|v_i|\).
 		
-		Now consider the following table.
+		Now consider the Table 2 on the next page.
 		
 		\begin{table}[ht]
 			\centering
