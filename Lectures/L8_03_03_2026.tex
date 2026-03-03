@@ -1,0 +1,196 @@
+\documentclass{article}
+\usepackage[paper=a6paper, landscape]{geometry}
+%\usepackage{mathptmx}
+%\usepackage{courier}
+\usepackage{fontawesome5}
+\usepackage{hyperref}
+\usepackage[most]{tcolorbox}
+\usepackage[utf8]{inputenc}
+\usepackage{tabularx}
+\usepackage{amsmath,amssymb,amsfonts,mathtools}
+
+\hypersetup{
+	colorlinks=true
+}
+
+% Boxes
+\newtcolorbox{definition}[2][]{
+	colback=blue!5!white,
+	colframe=blue!75!black,
+	fonttitle=\bfseries,
+	coltitle=white,
+	title={#2},
+	arc=4pt, outer arc=4pt,
+	drop shadow,
+	enhanced,
+	#1
+}
+\newtcolorbox{caution}[2][]{
+	colback=red!5!white,
+	colframe=red!75!black,
+	fonttitle=\bfseries,
+	coltitle=white,
+	title={#2},
+	arc=4pt, outer arc=4pt,
+	drop shadow,
+	enhanced,
+	#1
+}
+\newtcolorbox{info}[2][]{
+	colback=cyan!5!white,
+	colframe=cyan!75!black,
+	fonttitle=\bfseries,
+	coltitle=white,
+	title={#2},
+	arc=4pt, outer arc=4pt,
+	drop shadow,
+	enhanced,
+	#1
+}
+\newcounter{problem}
+\newtcolorbox{problem}[1][]{
+	colback=green!5!white,
+	colframe=green!75!black,
+	fonttitle=\bfseries,
+	coltitle=white,
+	title={\stepcounter{problem}Problem \theproblem},
+	arc=4pt, outer arc=4pt,
+	drop shadow,
+	enhanced,
+	#1
+}
+
+\newcounter{solution}
+\newtcolorbox{solution}[1][]{
+	colback=gray!5!white,
+	colframe=gray!75!black,
+	fonttitle=\bfseries,
+	coltitle=white,
+	title={\stepcounter{solution}Solution \thesolution},
+	arc=4pt, outer arc=4pt,
+	drop shadow,
+	enhanced,
+	#1,
+	breakable,
+	top=1em
+}
+
+\newcommand{\code}[1]{\texttt{#1}}
+
+\title{\textbf{\scshape Linear Regression and Gradient Descent}}
+\author{Bhaya, AG\thanks{\faEnvelope[regular]\ Electronic mail: \href{mailto:angubh.io@gmail.com}{\code{ananya[dot]gb[at]nbu[dot]ac[dot]in}}}\\\textsl{Dept. of Computer Science and Technology},\\
+	\textsl{University of North Bengal, Siliguri--10}.}
+
+\begin{document}
+	\maketitle
+	\pagebreak
+	\tableofcontents
+	\pagebreak
+	
+	\section{Gradient Descent}
+	
+	Another way to minimize the cost (or loss) function is by using gradient descent.
+	
+	\begin{definition}{Gradient Descent}
+		Gradient descent is an \textit{iterative algorithm}, which means we apply an update repeatedly until some criterion is met. We initialize the weights to something reasonable (\textit{e.g.}, all zeros) and repeatedly adjust them in the direction of the steepest descent (\(\max (-\nabla f)\)).
+	\end{definition}
+	
+	\subsection{Computational Complexity}
+	
+	Overall complexity of learning a linear regression model via \textit{normal} equations is, \(O(nm^2+m^3)\); where \(X\) is a \(m\times n\) matrix, and the multiplication \(X^TX\) has complexity \(O(nm^2)\). To solve the system of equations of the form, \(X^TXw=X^Ty\), the complexity is \(O(m^3)\).
+	
+	As a result, using the normal equations (closed-form solution) to solve for linear regressional parameters, can be highly computationally expensive at times. In such cases one can optimize learning using \textbf{gradient descent}.
+	
+	\begin{table}[ht]
+		\centering
+		\begin{tabularx}{1\textwidth}{|X|X|}
+			\hline
+			\textbf{Gradient Descent} & \textbf{Closed-form Solution} \\
+			\hline
+			\hline
+			Requires multiple iterations. & Non-iterative in nature.\\
+			\hline
+			Need to choose \(\alpha\). & No need for \(\alpha\). \\
+			\hline
+			Works well when \(n\) is large. & Slow if \(n\) is large (roughly \(O(n^3)\)).\\
+			\hline
+		\end{tabularx}
+		\caption{Comparison between Gradient Descent and Closed Solution.}
+	\end{table}
+
+	\pagebreak
+	
+	\begin{info}{Is gradient descent always better?}
+		Normal equations cost roughly \(O(nd^2+d^3)\), where as gradient descent costs \(O(ndt)\) to run for \(t\) iterations. But gradient descent is not always the path ahead. In cases where \(n\) is small, gradient descent is computationally expensive.
+	\end{info}
+
+	\subsection{Equation for Gradient Descent}
+	
+	A parameter, say \(w_i\), for a loss function \(L(w)\), can be updated using,
+	
+	\begin{equation}\label{eq:1}
+		w^{t+1}=w^t-\alpha\nabla_{w^t}L(w)=w^t-\alpha\frac{\partial L(w)}{\partial w^t}	
+	\end{equation}
+
+	In equation \eqref{eq:1}, alpha is called the \textbf{learning rate}. It is a hyperparameter that determines the size of the steps taken to reach the minimum of the cost function \(L(w)\).
+	
+	\begin{info}{What could be a correct choice $\alpha$?}
+		The value of \(\alpha\) (learning rate) can be chosen at random, as one sees fit. But it is important to choose a feasible value of \(\alpha\). If \(\alpha\) is too small a value, it might be computationally expensive to reach the local minima in terms of time.
+		
+		If too big a value is chosen, the algorithm might overshoot across the local minima, thereby getting stuck in a loop reverting to and fro across the local minima.
+	\end{info}
+
+	In equation \eqref{eq:1}, the value of \(L(w)\), the loss function is,
+	
+	\begin{equation}\label{eq:2}
+		L(w)=\sum_{i=1}^n(y_i-w^Tx_i)^2\text{, and}
+	\end{equation}
+
+	\begin{equation}\label{eq:3}
+		\nabla_{w_j}L(w)=-\sum_{i=1}^{n}(y_i-w^Tx_i)x_{ij}
+	\end{equation}
+
+	\pagebreak
+	
+	\begin{problem}
+		Let \((x_i,y_i)\) be a data point, where \(x_i\in\mathbb{R}^d\) is a feature vector and \(y_i\in\mathbb{R}\) is the corresponding output. There are a total of \(m\) data points. The cost function \(J(w)\) is given by,
+		
+		\[
+			J(w)=\frac12\sum_{i=1}^m(y_i-w^Tx_i)^2
+		\]
+		
+		where, \(w=[w_1,w_2,\hdots,w_d]^T\in\mathbb{R}^d\) is the vector of weights. What is teh correct expression for the derivative \(\dfrac{\partial J}{\partial w_j}\)?
+	\end{problem}
+
+	\begin{solution}
+		The gradient is of the form, \(\nabla J(w^t)=\left[\dfrac{\partial J}{\partial w_1},\dfrac{\partial J}{\partial w_2},\hdots\dfrac{\partial J}{\partial w_d}\right]\).
+		
+		\begin{align*}
+			\frac{\partial J}{\partial w_j}&=\frac{\partial}{\partial w_j}\frac12\sum_{i=1}^m(y_i-w^Tx_i)^2\\
+			&=\frac12 \sum_{i=1}^{m}2(y_i-w^Tx_i)\frac{\partial}{\partial w_j}(y_i-w_1x_{i1}-\hdots w_jx_{ij}-\hdots\\
+			&=\sum_{i=1}^m(y_i-w^Tx_i)(-x_{ij})\\
+			\Rightarrow \frac{\partial J}{\partial w_j} &=- \sum_{i=1}^m(y_i-w^Tx_i)x_{ij}
+		\end{align*}
+	\end{solution}
+
+	\section{Stochastic Gradient Descent}
+	
+	\begin{definition}{Stochastic Gradient Descent (SGD)}
+		Stochastic Gradient Descent (SGD) is an iterative optimization algorithm used to minimize loss functions in machine learning by updating model parameters (weights) using only one, or a few, randomly selected data points at a time.
+	\end{definition}
+
+	The loss function, \(L(w)\), for SGD is defined by,
+
+	\begin{equation}\label{eq:4}
+		L(w)=\frac1{D_\text{train}}\sum_{(x,y)\in D_\text{train}}L(x,y,w)
+	\end{equation}
+
+	Instead of looping through all the training examples, to compute a single gradient, and make one step, SGD loops through the examples \((x,y)\) and updates the weights \(w\) based on each example. Each update is not as precise, since it is based on one example, but we can make many more updates this way.
+	
+	One could randomize the order in which they loop over the training data in each iteration. This is important, for instance, if your traning data has all the positive examples first then the negative examples afterwards.
+	
+	\begin{info}{GD and SGD trade off.}
+		No doubt that SGD can run much faster than normal GD. But GD moves directly downhill following only one direction (opposite to \(\max \nabla f\)). SGD, on the other hand, its direction is determined by a few pre-selected points. As a result it takes step in a noisy direction, but moves downhill on average.
+	\end{info}
+	
+\end{document}
