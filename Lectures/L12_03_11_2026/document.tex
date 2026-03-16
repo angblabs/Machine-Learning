@@ -1,0 +1,214 @@
+\documentclass{scrartcl}
+\usepackage{geometry}
+\usepackage{amsmath,amsfonts,amssymb,mathtools}
+\usepackage{hyperref}
+\usepackage{fontawesome5}
+\usepackage{enumitem}
+\usepackage[most]{tcolorbox}
+
+\hypersetup{
+	colorlinks=true
+}
+
+\newcounter{prob}
+
+
+\newcommand{\code}[1]{\texttt{#1}}
+\renewcommand{\eqref}[1]{\hyperref[#1]{Equation~(\ref*{#1})}}
+\newtcolorbox{note}[1]{
+	colback=blue!5!white,
+	colframe=blue!80!black,
+	fonttitle=\bfseries,
+	coltitle=white,
+	title=#1
+}
+\newtcolorbox{prob}[1]{
+	colback=teal!5!white,
+	colframe=teal!80!black,
+	fonttitle=\bfseries,
+	coltitle=white,
+	title=\stepcounter{prob}Problem~\theprob~\textnormal{(#1 Points)}
+}
+\newtcolorbox{recap}[1]{
+	colback=violet!5!white,
+	colframe=violet!80!black,
+	fonttitle=\bfseries,
+	coltitle=white,
+	title=#1
+}
+
+\title{Ridge Regression and Lasso Regression}
+\author{Bhaya, AG\thanks{\faEnvelope[regular] Electronic mail: \href{mailto:angubh.io@gmail.com}{\code{ananya[dot]gb[at]nbu[dot]ac[dot]in}}}}
+
+\begin{document}
+	\maketitle
+	\hrule
+	\vspace{1em}
+
+	\section{Ridge Regression (or \(L_2\)-regression)}
+	The objective (or loss) function, \(L(w)\), for ridge regression is,
+	
+	\begin{equation}\label{eq:1}
+		L(w)=\sum_{i=1}^{n}(y_i-w^Tx_i)^2+\lambda\sum_{j=1}^{d}w_j^2
+	\end{equation}
+	
+	where, \(w\) is the vector of weights, and \(\lambda\ge0\) is the regularization parameter.
+	
+	\begin{note}{Note}
+		Larger the values of feature weights, more complex is the regression function, and hence the problem of overfitting. Higher the degree of polynomial function, more complex is the function, and larger is the value of weights.
+	\end{note}
+	
+	In \eqref{eq:1}, if we want to minimize \(L(w)\), the \(\displaystyle{\lambda\sum_{j=1}^{d}w_j^2}\) forces us to choose the weights with lower values, thereby decreasing the complexity of the regression function. On the other hand, if we choose the weights whose values are extemely low, such that the regression function is extremely simple, the term \(\displaystyle{\sum_{i=1}^{n}(y_i-w^Tx_i)^2}\) might not minimize, and hence underfitting (large training and test errors). \textbf{Hence, we have to meet somewhere in the middle to actually minimize the function}.
+	
+	If \(\lambda=0\), then no regularization occurs, and hence the regression function might overfit. If \(\lambda>>0\), then extreme regularization occurs, and hence the regression function might underfit. Finding a balancing value of \(\lambda\) is crucial.
+	
+	\begin{note}{Note}
+		There is no regularization on \(w_0\) (the bias term). In other words, the bias term is not penalized, allowing it to freely adjust for the offset in the data.
+	\end{note}
+	
+	In short, the objective of ridge regression is to minimize the total error, while controlling the magnitude of weights.
+	
+	\subsection{Gradient of Loss Function}
+	
+	Now we try to find the gradient of loss function in \eqref{eq:1}.
+	
+	\begin{align}
+		L(w)&=||Xw-y||^2+\lambda||w||^2 \nonumber\\ 
+		\Rightarrow \nabla L(w)&=2X^T(Xw-y)+2\lambda w \label{eq:2}
+	\end{align}
+	
+	To minimize the function, we equate \eqref{eq:2} to zero, \textit{i.e.},
+	
+	\begin{align}
+		\nabla L(w)&=2X^TXw-2X^Ty+2\lambda w=0\nonumber\\
+		&\Rightarrow (X^TX+\lambda I)w-X^Ty=0\nonumber \\
+		&\Rightarrow \boxed{w=(X^TX+\lambda I)^{-1}X^Ty} \label{eq:3}
+	\end{align}
+	
+	\eqref{eq:3} gives the closed-form solution for the loss function, \textit{i.e.}, minimized value for loss function.
+	
+	\begin{prob}{2}
+		Consider a new objective function with an added regularization term:
+		
+		\[
+			J_3(\theta,\theta_0)=\frac1n\sum_{i=1}^{n}(\theta^Tx^{(i)}+\theta_0-y^{(i)})^2+0.2(||\theta||^2+\theta_0^2)
+		\]
+		
+		Will adding this particular form of regularization in \(J_3\) improve the generalization of our model? Explain your answer.
+	\end{prob}
+	
+	\subparagraph{Sol.} This regularization is not a good idea. Adding this regularization penalizes our bias term \(\theta_0\). This is going to drive \(\theta_0\) towards \(0\), which will negatively effect the generalization of the model.
+	
+	\begin{prob}{6}
+		The standard form of \(L_2\)-regularized \(L_2\) loss function for linear regression is,
+		
+		\[
+			L=(Y-Xw)^T(Y-Xw)+\lambda w^Tw;\ \lambda>0
+		\]
+		
+		\begin{enumerate}[label*=(\alph*)]
+			\item Suppose we accidentally write \(L=(Y-Xw)^T(Y-Xw)+\lambda Y^TY\) instead. Explain why this form of regularization has no effect.
+			
+			\item  Suppose we use teh correct expression but accidentally choose $\lambda<0$. Explain briefly how this defeats the purpose of regularization.
+		\end{enumerate}
+	\end{prob}
+	
+	\subparagraph{Sol.}
+	\begin{enumerate}[label*=(\alph*)]
+		\item For \(L=(Y-Xw)^T(Y-Xw)+\lambda Y^TY\), when we minimize this term with respect to \(w\), the entire term \(\lambda Y^TY\) becomes zero, since \(Y^TY\) is a scalar quantity of ground truth vector dot products. Hence, we are doing nothing but ordinary differential equation, and regularization has no effect.
+		
+		\item If we choose \(\lambda<0\), then the term \(\lambda w^Tw\), will more likely increase the values of \(w\), in order for the entire term \(L\) to minimize. Hence it will perform the exact opposite of the intended purpose of regularization.
+	\end{enumerate}
+	
+	\section{Lasso Regression (or \(L_1\)-regression)}
+	
+	The objective function for lasso regression, is,
+	
+	\begin{equation}
+		L(w)=\sum_{i=1}^{n}(y_i-w^tx_i)^2+\lambda\sum_{j=1}^{d}|w_j|
+	\end{equation}
+	
+	Unlike ridge regression, there is no closed form solution for lasso regression, \(|w_j|\) is not differentiable at zero. But we can say \(\dfrac{d|w_j|}{dw}=\text{sign}(w_j)\), \textit{i.e.} if \(w_j<0\), then value of differentiation is \(-1\), and \(1\) for \(w_j>0\). But finding the exact value of \(w_j\) as a closed form solution is not possible.
+	
+	\begin{prob}{2}
+		Let \(X\in\mathbb{R}^{n\times d}\) be the data matrix and \(y\in\mathbb{R}^n\) be the observed labels for the \(n\) examples. Let \(w\in\mathbb{R}^d\) be the weight parameters learned from Lasso or Ridge regression, and let \(\lambda\) be the regularization coefficient. Which of the following statements are true?
+		
+		\begin{enumerate}[label*=\Roman*.]
+			\item In Lasso regression, as the regularization coefficient becomes very large, \textit{i.e.}, \(\lambda\rightarrow\infty\), the learned weights from Lasso regression will be close to zero \textit{i.e.}, \(w\rightarrow0\).
+			\item Lasso regression performs both feature selection and regularization.
+		\end{enumerate}
+	\end{prob}
+	
+	\subparagraph{Sol.}
+	
+	\begin{enumerate}[label*=\Roman*.]
+		\item This statement is \textbf{true}. As regularization coefficient approaches \(\infty\), in order to balance the weights will approach to zero.
+		
+		\item This statement is also \textbf{true}.
+	\end{enumerate}
+	
+	\begin{note}{\(l_p\)-norms}
+		\(l_p\) norm \(||w||_p\) for \(p\in(0,\infty)\) is defined as,
+		
+		\[
+			||w||_p=\left(\sum_{i=1}^{d}|w|^p\right)^\frac{1}{p}
+		\]
+		
+		So, in \(p\)-regularized least squares,
+		
+		\[
+			\hat{y}=\arg\min_\theta\frac1n||X\theta-y||_2^2+\lambda||\theta||_p^p
+		\]
+		
+		when, \(p=2\), we call it ridge regression, and \(p=1\), we call it lasso regression.
+	\end{note}
+	
+	\section{Gradient Descent in Ridge and Lasso Regression}
+	
+	\begin{recap}{Recall: Gradient descent update}
+		Recall that the update function for gradient descent is,
+		
+		\[
+			w\leftarrow w-\alpha \frac{\partial\mathcal{J}}{\partial w}
+		\]
+		
+		where, \(\alpha\) is the learning rate.
+	\end{recap}
+	
+	The gradient descent update of the regularized cost is interpreted as \textbf{weight decay}.
+	
+	\begin{equation}\label{eq:5}
+		w\rightarrow w-\alpha\left(\frac{\partial \mathcal{J}}{\partial w}+\lambda\frac{\partial\mathcal{R}}{\partial w}\right)
+	\end{equation}
+	
+	In case of ridge regression, we have \(\mathcal{R}=||w||^2\). So \(\dfrac{\partial \mathcal{R}}{\partial w}=2w\). Ignoring the constant 2, we can rewrite \eqref{eq:5} as,
+	
+	\begin{equation}\label{eq:6}
+		w\leftarrow (1-\alpha\lambda)w-\alpha\frac{\partial\mathcal{J}}{\partial w}
+	\end{equation}
+	
+	\eqref{eq:6} serves as the updation function for ridge regression. Now when it comes to lasso regression, we have \(\mathcal{R}=|w|\). So, \(\dfrac{\partial \mathcal{R}}{\partial w}=\text{sign}(w)\). We can rewrite \eqref{eq:5} as,
+	
+	\begin{equation}\label{eq:7}
+		w\leftarrow w-\alpha\lambda\cdot\text{sign}(w)-\alpha\frac{\partial\mathcal{J}}{\partial w}
+	\end{equation}
+	
+	\eqref{eq:7} serves as the updation function for the lasso regression.
+	
+	\section{Scale Invariance}
+	
+	Ridge and Lasso estimates are \textbf{not scale invariant}.
+	
+	Say we change the unit of a predictor \(X_j\) from inches to feet, \(X'_j=\dfrac{X_j}{12}\), then its coefficient would be scaled as \(\beta'_j=12\beta_j\). As a result the product \(\beta'_jX'_j=\beta_jX_j\) remains unchanged.
+	
+	However, the Ridge and Lasso estimates are not scalled accordingly, \textit{i.e.}, \(\hat{\beta}'_{j,\lambda,\text{Ridge}}\ne12\hat{\beta}'_{j,\lambda,\text{Ridge}}\), and \(\hat{\beta}'_{j,\lambda,\text{Lasso}}\ne12\hat{\beta}'_{j,\lambda,\text{Lasso}}\), since regularization penalizes large \(\beta\)'s. Hence for such data the model may return inaccurate results.
+	
+	\subsection{Feature Normalization}
+	
+	The scale of the features matter when using regularization. If one feature has values between \(X_1\in[0,1]\), and another between \(X_2\in[0,10000]\), the learned weights might be on very different scales, \textit{i.e.} \(\beta_1=\beta_{X_1}\), and \(\beta_2=\dfrac{1}{10000}\beta_{X_2}\). Since \(\beta_1\) is significantlly larger than \(\beta_2\), regularizer will heavily penalize \(\beta_1\) leading to inaccuracies.
+	
+	To prevent such scenarios, we use normalization, \textit{i.e.}, for each column of \(X\) and \(y\), subtract the mean of the feature from the data, and divide the result by the standard deviation of that feature.
+	
+	For a data \(X_{ij}\) column \(j\) and row \(i\), \(\text{norm}(X_{ij})=\dfrac{X_{ij}-\mu_{X_j}}{\sigma_{X_j}}\). Now using these normalized features, we can perform regularization without unnecessarily penalizing any weights. Scaling features is a very good practice for data preprocessing.
+	
+\end{document}
